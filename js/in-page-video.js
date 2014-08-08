@@ -131,7 +131,7 @@
 	
 	//Create Close Button - but will not place until video is open
 	var closeVideo = document.createElement('div');
-	closeVideo.setAttribute('style', 'position:absolute;background-color:#fff;padding:4px 10px;top:10px;right:2px;font-size:10px;cursor:pointer;');
+	closeVideo.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 10px;top:10px;right:2px;font-size:10px;cursor:pointer;');
 	closeVideo.innerHTML = 'CLOSE';
 	
 	//Start Creating Our Video Player	
