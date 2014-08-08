@@ -182,8 +182,9 @@
 	function scrollControl () {
 		
 		var video_placement = pageContainer.getBoundingClientRect();
-		
-		console.log(video_placement);
+		var video_from_top = window.innerHeight - video_placement.top;
+				
+		console.log(video_placement.top);
 		
 		if(!videoPlayerVisible) {
 		
@@ -205,43 +206,32 @@
 			
 		}else{
 			
-						
-			if (scrollPassed == false) {
-			
-							
-				if (video_placement.bottom <= 25) {
+			if (video_placement.top <= (video_dimensions.height / 2) * -1 ) {
 				
-					console.log('scrolled past');
+				videoPlayer.pause();
+				
+				return;
+				
+			}else{
+				
+				if( (window.innerHeight - video_placement.top) < (video_dimensions.height / 2)) {
 					
-					scrollPassed = true;
 					
 					videoPlayer.pause();
 					
 					return;
 					
-				}
-			}else{
+				}else{
 				
-				if (video_placement.bottom >= 25) {
+				videoPlayer.play();
 				
-					console.log('scrolled back');
-					
-					scrollPassed = false;
-					
-					videoPlayer.play();
-					
-					return;
-					
-				}
+				return;
 				
+				}				
 				
-			}
+			}			
 			
-			//console.log(video_placement.bottom);
-			
-			
-		}
-		
+		}	
 		
 	}
 	
