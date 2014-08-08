@@ -15,12 +15,15 @@
         if(name && name.indexOf(scriptName) > 0)
             targetScripts.push(pageScripts[i]);
     }
-	
+	var video_duration;
 	var videoPlayerVisible = false;
 	var scrollPassed = false;
 	
 	// Here is our embed code script tag
     var scriptTag = targetScripts[targetScripts.length - 1];
+    
+    //Bind scrollControl function to window scroll event
+    window.onscroll = scrollControl;
     
     // Helper function to load external css files
 	    function loadCss(href) {
@@ -71,7 +74,10 @@
 
     // Get the specific ID of the ad you want played 
 	var video_id = scriptTag.getAttribute('data-video-id');	
-
+	
+	
+	
+	//create default configuration for player
 	var playerConfig = {
 		
 		default_width: 300,
@@ -79,11 +85,13 @@
 		clickthrough_url: '',
 		completion_url: '',
 		autoplay: false,
-		controls: true,
+		controls: false,
 		muted: true
 		
 	}; 
-
+	
+	
+	//Check for supplied video dimensions (if non-existent fall back to default config)
 	var video_dimensions = {};
 	
 	video_dimensions.width = '';
@@ -111,6 +119,7 @@
 		
 	}
 	
+	//Start to contruct our page containers and player	
 	var pageContainer = document.createElement('div');
 	
 	pageContainer.id = 'pw-page-container';
@@ -140,25 +149,24 @@
 		
 	}
 	
+	//Setup final player options	
 	videoPlayer.width = video_dimensions.width;
 	videoPlayer.height = video_dimensions.height;
 	videoPlayer.autoplay = playerConfig.autoplay;
 	videoPlayer.controls = playerConfig.controls;
-	videoPlayer.muted = playerConfig.muted;
-	
+	videoPlayer.muted = playerConfig.muted;	
 	videoPlayer.onended = videoComplete; 
 	
 	
-	var video_duration;
-	
-	
+	//Setup player event listeners 
+	//Once player is ready get the length of the video
 	videoPlayer.addEventListener('canplay', function(){	
 	
 		video_duration = videoPlayer.duration;
 			
 	});	
 	
-	
+	//As the video progresses fire off various actions based on elapsed time completed
 	videoPlayer.addEventListener('progress', function(){	
 		
 		var currentTime = videoPlayer.currentTime;		
@@ -177,8 +185,8 @@
 	
 	});
 	
-	window.onscroll = scrollControl;
 	
+	//Handle Page Scroll Events to conrol video display, play and pause based on scrolling
 	function scrollControl () {
 		
 		var video_placement = pageContainer.getBoundingClientRect();
@@ -235,10 +243,11 @@
 		
 	}
 	
+	
 	function playVideo () {
 		
 		videoPlayer.play();
-		
+				
 	}
 	
 	function videoComplete () {
@@ -251,9 +260,6 @@
 		
 	}
 		
-	console.log(video_dimensions);
-	
-	
     // Check for existance of jQuery and localize our version if ours is newer
     if (window.jQuery === undefined || window.jQuery.fn.jquery !== jqueryVersion) {
         loadScript(jqueryPath, initjQuery);
