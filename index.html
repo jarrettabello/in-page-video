@@ -34,7 +34,9 @@
 			      s.async = true;
 			      var theUrl = 'http://localhost/js/in-page-video.js';
 			      s.src = theUrl + ( theUrl.indexOf("?") >= 0 ? "&" : "?") + 'ref=' + encodeURIComponent(window.location.href);
-			      s.setAttribute('data-video-id', 'euzVfZUjdds');			      
+			      s.setAttribute('data-video-id', 'euzVfZUjdds');
+			      s.setAttribute('data-video-width', 500);
+			      s.setAttribute('data-video-height', 300);			      
 			      var embedder = document.getElementById('dclg-impact-indicators-embedder-5b8cf3a4-b0f0-13e9-3737-d5a159268ae6');
 			      embedder.parentNode.insertBefore(s, embedder);
 			    }
