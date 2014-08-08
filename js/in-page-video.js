@@ -1,5 +1,5 @@
 (function(window, document){
-	//Being In-Page-Video Ad
+	//Being In-Page-Video Ad	
 	
 	var scriptName = "in-page-video.js"; //name of this script, used to get reference to own tag
     var jQuery; //jQuery Localized Value
@@ -50,8 +50,7 @@
             script_tag.onload = onLoad;
         }
         (document.getElementsByTagName("head")[0] || document.documentElement).appendChild(script_tag);
-    }
-	
+    }	
 	
 	//Detect Support for html5 Video Object
 	var supportsVideoElement = !!document.createElement('video').canPlayType;
@@ -68,14 +67,10 @@
 		
 		var canPlay_WEMB = temp.canPlayType('video/webm; codecs="vp8,vorbis"');		
 		
-	}
-	
-	
+	}	
 
     // Get the specific ID of the ad you want played 
-	var video_id = scriptTag.getAttribute('data-video-id');	
-	
-	
+	var video_id = scriptTag.getAttribute('data-video-id');		
 	
 	//create default configuration for player
 	var playerConfig = {
@@ -86,10 +81,9 @@
 		completion_url: '',
 		autoplay: false,
 		controls: false,
-		muted: true
+		muted: false
 		
 	}; 
-	
 	
 	//Check for supplied video dimensions (if non-existent fall back to default config)
 	var video_dimensions = {};
@@ -125,12 +119,20 @@
 	pageContainer.id = 'pw-page-container';
 	
 	pageContainer.style.visbility = 'hidden';
+	pageContainer.style.textAlign = 'center';
 	
 	var videoContainer = document.createElement('div');
 	
-	videoContainer.style.display = 'none';
-	
+	videoContainer.setAttribute('style','display:none;position:relative;margin:0 auto');
+	videoContainer.style.width = video_dimensions.width + 'px';
+	videoContainer.style.height = video_dimensions.height + 'px';
 	pageContainer.appendChild(videoContainer);
+	
+	
+	//Create Close Button - but will not place until video is open
+	var closeVideo = document.createElement('div');
+	closeVideo.setAttribute('style', 'position:absolute;background-color:#fff;padding:4px 10px;top:10px;right:2px;font-size:10px;cursor:pointer;');
+	closeVideo.innerHTML = 'CLOSE';
 	
 	//Start Creating Our Video Player	
 	var videoPlayer = document.createElement('video');
@@ -183,8 +185,9 @@
 		
 		if (pct_complete >= .75 && pct_complete < .76) { console.log('Video is 75% complete') }
 	
-	});
+	});	
 	
+	closeVideo.addEventListener('click', videoComplete);
 	
 	//Handle Page Scroll Events to conrol video display, play and pause based on scrolling
 	function scrollControl () {
@@ -200,13 +203,15 @@
 			
 			//console.log(video_placement.top);
 				
-			if (video_placement.top <= 0 ) {
+			if (  video_placement.top  < ( window.innerHeight - (video_dimensions.height / 2))  ) {
 				
 				videoPlayerVisible = true;
 				
 				pageContainer.style.visibility = 'visible';
 				
 				jQuery(videoContainer).slideDown('slow', playVideo);
+				
+				videoContainer.appendChild(closeVideo);
 				
 				return;
 				
@@ -241,8 +246,7 @@
 			
 		}	
 		
-	}
-	
+	}	
 	
 	function playVideo () {
 		
