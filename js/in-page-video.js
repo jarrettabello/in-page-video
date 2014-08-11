@@ -92,7 +92,7 @@
 		clickthrough_url: '',
 		completion_url: '',
 		autoplay: false,
-		controls: true,
+		controls: false,
 		muted: false
 		
 	}; 
@@ -205,7 +205,7 @@
 		
 	}else{
 		
-		closeVideo.setAttribute('style', 'position:relative;background-color:rgba(255,255,255,.5);text-align:center;padding:4px 10px;font-size:10px;cursor:pointer;');
+		closeVideo.setAttribute('style', 'position:relative;background-color:rgba(255,255,255,.5);text-align:center;padding:4px 10px;font-size:14px;cursor:pointer;');
 		closeVideo.innerHTML = 'CLOSE <img src="img/button-close-black.png" height="10" style="vertical-align:middle"/>';
 		
 	}
@@ -236,6 +236,15 @@
 		source_MP4.type = 'video/mp4';
 		source_MP4.src = cloudFront + '/cod-1080.mp4';
 		videoPlayer.appendChild(source_MP4);
+		
+	}
+	
+	if(canPlay_OGV) {
+		
+		var source_OGV = document.createElement('source');
+		source_OGV.type = 'video/ogg';
+		source_OGV.src = cloudFront + '/cod-1080.ogv';
+		videoPlayer.appendChild(source_OGV);
 		
 	}
 	
