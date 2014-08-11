@@ -1,6 +1,12 @@
 (function(window, document){
 	//Being In-Page-Video Ad	
+	var mobile_device = false;
+	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
 	
+		mobile_device = true;
+		console.log('mobile device');
+	
+	}
 	var scriptName = "in-page-video.js"; //name of this script, used to get reference to own tag
     var jQuery; //jQuery Localized Value
     var jqueryPath = "http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";  //jQuery CDN Link 
@@ -19,7 +25,11 @@
 	var videoPlayerVisible = false;
 	var scrollPassed = false;
 	var video_placement;
-	
+	var video_event_25 = false;
+	var video_event_50 = false;
+	var video_event_75 = false;
+	var video_event_complete = false;
+
 	
 	// Here is our embed code script tag
     var scriptTag = targetScripts[targetScripts.length - 1];
@@ -82,7 +92,7 @@
 		clickthrough_url: '',
 		completion_url: '',
 		autoplay: false,
-		controls: false,
+		controls: true,
 		muted: false
 		
 	}; 
@@ -116,6 +126,60 @@
 	}
 	
 	
+	//Check for supplied urls for progress based events at 25%
+	if ( scriptTag.hasAttribute('data-event-25') ) {
+	
+		video_event_25 = scriptTag.getAttribute('data-event-25');
+	
+	}
+	
+	//Check for supplied urls for progress based events at 50%
+	if ( scriptTag.hasAttribute('data-event-50') ) {
+	
+		video_event_50 = scriptTag.getAttribute('data-event-50');
+	
+	}	
+	//Check for supplied urls for progress based events at 75%
+	if ( scriptTag.hasAttribute('data-event-75') ) {
+	
+		video_event_75 = scriptTag.getAttribute('data-event-25');
+	
+	}
+	
+	//Check for supplied urls for progress based events at completion
+	if ( scriptTag.hasAttribute('data-event-complete') ) {
+	
+		video_event_complete = scriptTag.getAttribute('data-event-complete');
+	
+	}
+		
+	//Check if player has been set to be muted
+	if ( scriptTag.hasAttribute('data-muted') ) {
+	
+		user_mute_option = scriptTag.getAttribute('data-muted');
+		
+		if(user_mute_option == 'true') {
+			
+			playerConfig.muted = true;
+			
+		}
+	
+	}
+	
+	//Check for click-thru Url
+	if ( scriptTag.hasAttribute('data-click-url') ) {
+	
+		var click_thru_url = scriptTag.getAttribute('data-click-url');
+		
+		var click_thru_link = document.createElement('a');
+		
+		click_thru_link.href =  click_thru_url;
+		click_thru_link.target = '_blank';
+		
+		
+	
+	}
+	
 	//Start to contruct our page containers and player	
 	var pageContainer = document.createElement('div');
 	
@@ -134,13 +198,34 @@
 	
 	//Create Close Button - but will not place until video is open
 	var closeVideo = document.createElement('div');
-	closeVideo.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 10px;top:12px;right:4px;font-size:10px;cursor:pointer;border-radius:10px');
-	closeVideo.innerHTML = 'CLOSE <img src="img/button-close-black.png" height="10" style="vertical-align:middle"/>';
+	if(!mobile_device) {
+
+		closeVideo.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 10px;top:12px;right:4px;font-size:10px;cursor:pointer;border-radius:10px');
+		closeVideo.innerHTML = 'CLOSE <img src="img/button-close-black.png" height="10" style="vertical-align:middle"/>';
+		
+	}else{
+		
+		closeVideo.setAttribute('style', 'position:relative;background-color:rgba(255,255,255,.5);text-align:center;padding:4px 10px;font-size:10px;cursor:pointer;');
+		closeVideo.innerHTML = 'CLOSE <img src="img/button-close-black.png" height="10" style="vertical-align:middle"/>';
+		
+	}
+	
+	
 	
 	//Start Creating Our Video Player	
 	var videoPlayer = document.createElement('video');
 	
-	videoContainer.appendChild(videoPlayer);
+	
+	
+	if(click_thru_link) {
+		
+		videoContainer.appendChild(click_thru_link);
+		click_thru_link.appendChild(videoPlayer);
+		
+	}else{
+				
+		videoContainer.appendChild(videoPlayer);
+	}
 	
 	videoPlayer.id = 'in-page-video';	
 	
@@ -182,11 +267,29 @@
 		
 		console.log(pct_complete);
 		
-		if (pct_complete >= .25 && pct_complete < .26) { console.log('Video is 25% complete') }
+		if (pct_complete >= .25 && pct_complete < .26 && video_event_25 != false) { 
 		
-		if (pct_complete >= .50 && pct_complete < .51) { console.log('Video is 50% complete') }
+			
+			video_event_25_saved =  video_event_25;
+			video_event_25 = false;
+			console.log('Video is 25% complete') 
+			
+			
+		}
 		
-		if (pct_complete >= .75 && pct_complete < .76) { console.log('Video is 75% complete') }
+		if (pct_complete >= .50 && pct_complete < .51 && video_event_50 != false) { 
+
+			video_event_50_saved =  video_event_50;
+			video_event_50 = false;			
+			console.log('Video is 50% complete') 
+		
+		}
+		
+		if (pct_complete >= .75 && pct_complete < .76 && video_event_75 != false) { 
+		
+			video_event_75_saved =  video_event_75;
+			video_event_75 = false;			
+			console.log('Video is 75% complete') }
 	
 	});	
 	
@@ -230,9 +333,9 @@
 					
 				}else{
 				
-				videoPlayer.play();
+					playVideo ()
 				
-				return;
+					return;
 				
 				}				
 				
@@ -260,8 +363,14 @@
 	}
 	
 	function playVideo () {
+	
+		if(!mobile_device || mobile_device == false){
+			
+			console.log('playing non mobile');
+			videoPlayer.play();	
+			
+		}	
 		
-		videoPlayer.play();
 				
 	}
 	
@@ -278,7 +387,7 @@
 		
 	}
 	
-	//Function to detect if Video is present on page without scrolling
+	//Function to detect if Video is present on page without scrolling - added delay for effect
 	function checkIfVisible () {
 		
 		if(video_placement.top <= window.innerHeight) {
