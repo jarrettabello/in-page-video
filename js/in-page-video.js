@@ -18,6 +18,8 @@
 	var video_duration;
 	var videoPlayerVisible = false;
 	var scrollPassed = false;
+	var video_placement;
+	
 	
 	// Here is our embed code script tag
     var scriptTag = targetScripts[targetScripts.length - 1];
@@ -113,6 +115,7 @@
 		
 	}
 	
+	
 	//Start to contruct our page containers and player	
 	var pageContainer = document.createElement('div');
 	
@@ -131,8 +134,8 @@
 	
 	//Create Close Button - but will not place until video is open
 	var closeVideo = document.createElement('div');
-	closeVideo.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 10px;top:10px;right:2px;font-size:10px;cursor:pointer;');
-	closeVideo.innerHTML = 'CLOSE';
+	closeVideo.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 10px;top:12px;right:4px;font-size:10px;cursor:pointer;border-radius:10px');
+	closeVideo.innerHTML = 'CLOSE <img src="img/button-close-black.png" height="10" style="vertical-align:middle"/>';
 	
 	//Start Creating Our Video Player	
 	var videoPlayer = document.createElement('video');
@@ -192,7 +195,7 @@
 	//Handle Page Scroll Events to conrol video display, play and pause based on scrolling
 	function scrollControl () {
 		
-		var video_placement = pageContainer.getBoundingClientRect();
+		video_placement = pageContainer.getBoundingClientRect();
 		var video_from_top = window.innerHeight - video_placement.top;
 				
 		console.log(video_placement.top);
@@ -205,16 +208,7 @@
 				
 			if (  video_placement.top  < ( window.innerHeight - (video_dimensions.height / 2))  ) {
 				
-				videoPlayerVisible = true;
-				
-				pageContainer.style.visibility = 'visible';
-				
-				jQuery(videoContainer).slideDown('slow', playVideo);
-				
-				videoContainer.appendChild(closeVideo);
-				
-				return;
-				
+				showVideo();				
 			}
 			
 		}else{
@@ -248,6 +242,23 @@
 		
 	}	
 	
+	function showVideo() {
+	
+		console.log('Show Video');
+		
+		videoPlayerVisible = true;
+				
+		pageContainer.style.visibility = 'visible';
+		
+		jQuery(videoContainer).slideDown('slow', playVideo);
+		
+		videoContainer.appendChild(closeVideo);
+		
+		return;
+
+		
+	}
+	
 	function playVideo () {
 		
 		videoPlayer.play();
@@ -258,9 +269,25 @@
 		
 		jQuery(videoPlayer).fadeOut('slow', function() {
 			
+			//solution for removing player when audio still plays
+			videoPlayer.pause();
+			videoPlayer.src = "";
 			pageContainer.parentNode.removeChild(pageContainer);
 			
 		});		
+		
+	}
+	
+	//Function to detect if Video is present on page without scrolling
+	function checkIfVisible () {
+		
+		if(video_placement.top <= window.innerHeight) {
+			
+			console.log('is visible');
+			
+			setTimeout( showVideo, 1000);			
+			
+		}
 		
 	}
 		
@@ -273,14 +300,27 @@
  
 	//No Conflict Mode Prevents Errors with other sites
     function initjQuery() {
+    
         jQuery = window.jQuery.noConflict(true);
+
+        jQuery(document).ready(function(){
+
+			
+			checkIfVisible();
+			
+		});
+
         main();
     }	
 
 	function main () {
 		
 		scriptTag.parentNode.insertBefore(pageContainer, scriptTag);
+		video_placement = pageContainer.getBoundingClientRect();
 		
+				
 	}
+	
+	
 	  
 })(window, document);
