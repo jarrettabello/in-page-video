@@ -229,7 +229,7 @@
 	
 	videoPlayer.id = 'in-page-video';	
 	
-	//If broswer supports MP4 start setting up the source
+	//If broswer supports MP4 start setting up the source - Firefox does not play mp4 natively 
 	if(canPlay_MP4) {
 		
 		var source_MP4 = document.createElement('source');
@@ -435,7 +435,7 @@
 		
 		scriptTag.parentNode.insertBefore(pageContainer, scriptTag);
 		video_placement = pageContainer.getBoundingClientRect();
-		
+		console.log(document.getElementsByTagName("video")[0].error);
 				
 	}
 	
