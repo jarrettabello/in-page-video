@@ -1,10 +1,18 @@
 (function(window, document){
 	//Being In-Page-Video Ad	
 	var mobile_device = false;
+	var is_android = false;
 	if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
 	
 		mobile_device = true;
-		console.log('mobile device');
+		
+		if( /Android/i.test(navigator.userAgent) ) {
+		
+			is_android = true;
+		
+		}
+		
+		console.log('mobile device' + navigator.userAgent);
 	
 	}
 	var scriptName = "in-page-video.js"; //name of this script, used to get reference to own tag
@@ -29,8 +37,8 @@
 	var video_event_50 = false;
 	var video_event_75 = false;
 	var video_event_complete = false;
-
-	
+	var is_muted = false;
+	var hover_sound_config = false;
 	// Here is our embed code script tag
     var scriptTag = targetScripts[targetScripts.length - 1];
     
@@ -160,11 +168,15 @@
 		
 		if(user_mute_option == 'true') {
 			
+			is_muted = true;
 			playerConfig.muted = true;
+			
 			
 		}
 	
 	}
+	
+	
 	
 	//Check for click-thru Url
 	if ( scriptTag.hasAttribute('data-click-url') ) {
@@ -192,7 +204,7 @@
 	
 	videoContainer.setAttribute('style','display:none;position:relative;margin:0 auto');
 	videoContainer.style.width = video_dimensions.width + 'px';
-	videoContainer.style.height = video_dimensions.height + 'px';
+	videoContainer.style.height = (video_dimensions.height + 30)  + 'px';
 	pageContainer.appendChild(videoContainer);
 	
 	
@@ -210,12 +222,55 @@
 		
 	}
 	
+	var play_overlay  = document.createElement('img');
+	play_overlay.src = 'img/pw-play-overlay.png';
+	play_overlay.width = 270;
+	play_overlay.height = 200;
+	play_overlay.setAttribute('style', 'position:absolute;z-index:3;left:50%;margin-left:-135px;top:50%;margin-top: -115px;');
+	
+	//videoContainer.appendChild(play_overlay);
+	
+	//Create Our Own Mute Button
+	var mute_button = document.createElement('img');
+	if (is_muted) {
+	
+		mute_button.src = 'img/volume-mute.png';	
+	
+	}else{
+		
+		mute_button.src = 'img/volume-unmute.png';
+		
+	}
+	
+	mute_button.width = 20;
+	mute_button.height = 20;
+	mute_button.title = 'Toggle Mute';
+	mute_button.setAttribute('style', 'position:absolute;z-index:3;right:4px;bottom:45px;cursor:pointer;');
+	
 	
 	
 	//Start Creating Our Video Player	
 	var videoPlayer = document.createElement('video');
 	
+	//Check if player has been set to detect mouse over for audio toggle
+	if ( scriptTag.hasAttribute('data-hover-sound') ) {
+		
+		hover_sound = scriptTag.getAttribute('data-hover-sound');
+		
+		if(hover_sound == 'true') {
+		
+		hover_sound_config = true;	
+		is_muted = true;
+		playerConfig.muted = true;
+		videoPlayer.addEventListener('mouseover', toggleMute);
+		videoPlayer.addEventListener('mouseout', toggleMute);
+			
+			
+		}
+		
 	
+			
+	}
 	
 	if(click_thru_link) {
 		
@@ -264,6 +319,30 @@
 		video_duration = videoPlayer.duration;
 			
 	});	
+	
+	
+	
+	function toggleMute () {
+		
+		if (is_muted){
+			
+			is_muted = false;
+			if(!hover_sound_config) mute_button.src = 'img/volume-unmute.png';
+			videoPlayer.muted = false;			
+			return;
+			
+		}else{
+			
+			is_muted = true;
+			if(!hover_sound_config) mute_button.src = 'img/volume-mute.png';
+			videoPlayer.muted = true;
+			return;
+			
+		}
+		
+	}	
+	
+	
 	
 	//As the video progresses fire off various actions based on elapsed time completed
 	videoPlayer.addEventListener('progress', function(){	
@@ -366,14 +445,20 @@
 		
 		videoContainer.appendChild(closeVideo);
 		
+		
 		return;
 
 		
 	}
 	
 	function playVideo () {
-	
-		if(!mobile_device || mobile_device == false){
+		
+		//before video play check to see if hover is set - if set, dont show the mute toggle button
+		if (!hover_sound_config) {
+			videoContainer.appendChild(mute_button);	
+			mute_button.addEventListener('click', toggleMute);
+		}
+		if (!mobile_device || mobile_device == false){
 			
 			console.log('playing non mobile');
 			videoPlayer.play();	
