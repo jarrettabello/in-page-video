@@ -39,6 +39,7 @@
 	var video_event_complete = false;
 	var is_muted = false;
 	var hover_sound_config = false;
+	var is_showing_hoverIcon = false;
 	// Here is our embed code script tag
     var scriptTag = targetScripts[targetScripts.length - 1];
     
@@ -222,6 +223,11 @@
 		
 	}
 	
+	var hoverMuteIcon = document.createElement('div');
+	hoverMuteIcon.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 0;text-align:center;bottom:42px;right:4px;font-size:10px;cursor:pointer;border-radius:10px;width:30%;left:50%;margin-left:-15%;');
+	hoverMuteIcon.innerHTML = 'Mouse over video for audio <img src="img/volume-unmute.png" height="10" style="vertical-align:middle"/>';
+	
+	
 	var play_overlay  = document.createElement('img');
 	play_overlay.src = 'img/pw-play-overlay.png';
 	play_overlay.width = 270;
@@ -336,6 +342,24 @@
 			is_muted = true;
 			if(!hover_sound_config) mute_button.src = 'img/volume-mute.png';
 			videoPlayer.muted = true;
+			return;
+			
+		}
+		
+	}
+	
+	function hoverIconToggle () {
+		
+		if (is_showing_hoverIcon){
+			
+			is_showing_hoverIcon = false;
+			jQuery(hoverMuteIcon).fadeIn('slow');			
+			return;
+			
+		}else{
+			
+			is_showing_hoverIcon = true;
+			jQuery(hoverMuteIcon).fadeOut('slow');
 			return;
 			
 		}
@@ -455,9 +479,18 @@
 		
 		//before video play check to see if hover is set - if set, dont show the mute toggle button
 		if (!hover_sound_config) {
+			
 			videoContainer.appendChild(mute_button);	
 			mute_button.addEventListener('click', toggleMute);
-		}
+		}else{
+			
+			//Append hover - mute notifcaction 
+			videoContainer.appendChild(hoverMuteIcon);
+			videoContainer.addEventListener('mouseover', hoverIconToggle);
+			videoContainer.addEventListener('mouseout', hoverIconToggle);
+			
+		}	
+		
 		if (!mobile_device || mobile_device == false){
 			
 			console.log('playing non mobile');
