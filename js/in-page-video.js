@@ -202,7 +202,7 @@
 	pageContainer.style.textAlign = 'center';
 	
 	var videoContainer = document.createElement('div');
-	
+	videoContainer.id = 'pw-video-container';
 	videoContainer.setAttribute('style','display:none;position:relative;margin:0 auto');
 	videoContainer.style.width = video_dimensions.width + 'px';
 	videoContainer.style.height = (video_dimensions.height + 30)  + 'px';
@@ -211,24 +211,27 @@
 	
 	//Create Close Button - but will not place until video is open
 	var closeVideo = document.createElement('div');
+	closeVideo.id = 'pw-close-button';
 	if(!mobile_device) {
-
-		closeVideo.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 10px;top:12px;right:4px;font-size:10px;cursor:pointer;border-radius:10px');
+		
+		closeVideo.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 10px;top:12px;right:4px;font-size:10px;cursor:pointer;border-radius:10px;display:none;z-index:4');
 		closeVideo.innerHTML = 'CLOSE <img src="img/button-close-black.png" height="10" style="vertical-align:middle"/>';
 		
 	}else{
 		
-		closeVideo.setAttribute('style', 'position:relative;background-color:rgba(255,255,255,.5);text-align:center;padding:4px 10px;font-size:14px;cursor:pointer;');
+		closeVideo.setAttribute('style', 'position:relative;background-color:rgba(255,255,255,.5);text-align:center;padding:4px 10px;font-size:14px;cursor:pointer;display:none;');
 		closeVideo.innerHTML = 'CLOSE <img src="img/button-close-black.png" height="10" style="vertical-align:middle"/>';
 		
 	}
 	
 	var hoverMuteIcon = document.createElement('div');
-	hoverMuteIcon.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 0;text-align:center;bottom:42px;right:4px;font-size:10px;cursor:pointer;border-radius:10px;width:30%;left:50%;margin-left:-15%;');
+	hoverMuteIcon.id = 'pw-hover-mute';
+	hoverMuteIcon.setAttribute('style', 'position:absolute;background-color:rgba(255,255,255,.5);padding:4px 0;text-align:center;bottom:42px;right:4px;font-size:10px;cursor:pointer;border-radius:10px;width:30%;left:50%;margin-left:-15%;display:none;pointer-events:none;');
 	hoverMuteIcon.innerHTML = 'Mouse over video for audio <img src="img/volume-unmute.png" height="10" style="vertical-align:middle"/>';
 	
 	
 	var play_overlay  = document.createElement('img');
+	play_overlay.id = 'pw-play-overlay';
 	play_overlay.src = 'img/pw-play-overlay.png';
 	play_overlay.width = 270;
 	play_overlay.height = 200;
@@ -238,6 +241,7 @@
 	
 	//Create Our Own Mute Button
 	var mute_button = document.createElement('img');
+	mute_button.id = 'pw-mute-button';
 	if (is_muted) {
 	
 		mute_button.src = 'img/volume-mute.png';	
@@ -251,7 +255,7 @@
 	mute_button.width = 20;
 	mute_button.height = 20;
 	mute_button.title = 'Toggle Mute';
-	mute_button.setAttribute('style', 'position:absolute;z-index:3;right:4px;bottom:45px;cursor:pointer;');
+	mute_button.setAttribute('style', 'position:absolute;z-index:3;right:4px;bottom:45px;cursor:pointer;display:none');
 	
 	
 	
@@ -268,8 +272,31 @@
 		hover_sound_config = true;	
 		is_muted = true;
 		playerConfig.muted = true;
-		videoPlayer.addEventListener('mouseover', toggleMute);
-		videoPlayer.addEventListener('mouseout', toggleMute);
+		videoPlayer.addEventListener('mouseover', function(event){
+						
+			
+			is_muted = false;
+			if(!hover_sound_config) mute_button.src = 'img/volume-unmute.png';
+			videoPlayer.muted = false;		
+			return;
+			
+		});
+		videoPlayer.addEventListener('mouseout', function(event){
+						
+			var e = event.relatedTarget;
+			//console.log('mouseover ' + e.id);
+		    
+		    if (e.id == 'pw-hover-mute' || e.id == 'pw-close-button' ) {
+		        return;
+		    }
+			
+			is_muted = true;
+			
+			if(!hover_sound_config) mute_button.src = 'img/volume-mute.png';
+			videoPlayer.muted = true;		
+			return;
+			
+		});
 			
 			
 		}
@@ -278,14 +305,18 @@
 			
 	}
 	
+	
+	videoContainer.appendChild(videoPlayer);
+	
 	if(click_thru_link) {
 		
-		videoContainer.appendChild(click_thru_link);
 		click_thru_link.appendChild(videoPlayer);
+		videoContainer.appendChild(click_thru_link);
 		
 	}else{
-				
+		
 		videoContainer.appendChild(videoPlayer);
+		
 	}
 	
 	videoPlayer.id = 'in-page-video';	
@@ -328,46 +359,6 @@
 	
 	
 	
-	function toggleMute () {
-		
-		if (is_muted){
-			
-			is_muted = false;
-			if(!hover_sound_config) mute_button.src = 'img/volume-unmute.png';
-			videoPlayer.muted = false;			
-			return;
-			
-		}else{
-			
-			is_muted = true;
-			if(!hover_sound_config) mute_button.src = 'img/volume-mute.png';
-			videoPlayer.muted = true;
-			return;
-			
-		}
-		
-	}
-	
-	function hoverIconToggle () {
-		
-		if (is_showing_hoverIcon){
-			
-			is_showing_hoverIcon = false;
-			jQuery(hoverMuteIcon).fadeIn('slow');			
-			return;
-			
-		}else{
-			
-			is_showing_hoverIcon = true;
-			jQuery(hoverMuteIcon).fadeOut('slow');
-			return;
-			
-		}
-		
-	}	
-	
-	
-	
 	//As the video progresses fire off various actions based on elapsed time completed
 	videoPlayer.addEventListener('progress', function(){	
 		
@@ -377,7 +368,7 @@
 		
 		pct_complete = (Math.round(pct_complete * 100) / 100);
 		
-		console.log(pct_complete);
+		//console.log(pct_complete);
 		
 		if (pct_complete >= .25 && pct_complete < .26 && video_event_25 != false) { 
 		
@@ -404,6 +395,81 @@
 			console.log('Video is 75% complete') }
 	
 	});	
+	
+	
+	videoPlayer.addEventListener('play', function() {
+		
+		//before video play check to see if hover is set - if set, dont show the mute toggle button
+			if (!hover_sound_config) {
+				
+				
+				setTimeout(function(){
+					
+					videoContainer.appendChild(mute_button);
+					jQuery(mute_button).fadeIn('slow');
+					mute_button.addEventListener('click', toggleMute);
+					
+				}, 500);
+				
+				
+			}else{
+				
+				setTimeout(function(){
+					
+					is_showing_hoverIcon = true;
+					videoContainer.appendChild(hoverMuteIcon);
+					jQuery(hoverMuteIcon).fadeIn('slow');
+					
+					videoPlayer.addEventListener('mouseover', function(event){
+						
+						var e = event.fromElement || event.relatedTarget;
+						console.log('mouseover ' + e.id);
+					   if (e.id == 'pw-hover-mute' || e.id == 'pw-close-button' ) {
+					        return;
+					    }
+						
+						jQuery(hoverMuteIcon).fadeOut('fast', function() {
+							
+							is_showing_hoverIcon = false;
+							
+						});			
+						return;
+						
+					});
+					
+					videoPlayer.addEventListener('mouseout', function(event){
+						var e = event.relatedTarget;
+						console.log(event);
+						if ( e.id == 'pw-close-button') {
+					        return;
+					    }
+						
+						jQuery(hoverMuteIcon).fadeIn('slow', function() {
+							
+							is_showing_hoverIcon = true;
+							
+						});			
+						return;
+					});	
+					
+				}, 500);		
+				//Append hover - mute notifcaction 
+				
+				
+			}
+			
+			setTimeout(function(){
+				
+					videoContainer.appendChild(closeVideo);
+					jQuery(closeVideo).fadeIn('slow');
+					
+			}, 500);
+			
+			
+		
+		
+	});
+	
 	
 	closeVideo.addEventListener('click', videoComplete);
 	
@@ -467,7 +533,7 @@
 		
 		jQuery(videoContainer).slideDown('slow', playVideo);
 		
-		videoContainer.appendChild(closeVideo);
+		
 		
 		
 		return;
@@ -477,27 +543,18 @@
 	
 	function playVideo () {
 		
-		//before video play check to see if hover is set - if set, dont show the mute toggle button
-		if (!hover_sound_config) {
-			
-			videoContainer.appendChild(mute_button);	
-			mute_button.addEventListener('click', toggleMute);
-		}else{
-			
-			//Append hover - mute notifcaction 
-			videoContainer.appendChild(hoverMuteIcon);
-			videoContainer.addEventListener('mouseover', hoverIconToggle);
-			videoContainer.addEventListener('mouseout', hoverIconToggle);
-			
-		}	
+		if(!mobile_device) {
 		
-		if (!mobile_device || mobile_device == false){
+				
 			
-			console.log('playing non mobile');
-			videoPlayer.play();	
-			
-		}	
-		
+			if (!mobile_device || mobile_device == false){
+				
+				console.log('playing non mobile');
+				videoPlayer.play();	
+				
+			}	
+
+		}
 				
 	}
 	
