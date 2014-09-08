@@ -73,6 +73,61 @@
         (document.getElementsByTagName("head")[0] || document.documentElement).appendChild(script_tag);
     }	
 	
+		//Vanilla Ajax request courtesy of http://stackoverflow.com/questions/8567114/how-to-make-an-ajax-call-without-jquery
+		var ajax = {};
+		ajax.x = function() {
+	    if (typeof XMLHttpRequest !== 'undefined') {
+	        return new XMLHttpRequest();  
+	    }
+	    var versions = [
+	        "MSXML2.XmlHttp.5.0",   
+	        "MSXML2.XmlHttp.4.0",  
+	        "MSXML2.XmlHttp.3.0",   
+	        "MSXML2.XmlHttp.2.0",  
+	        "Microsoft.XmlHttp"
+	    ];
+	
+	    var xhr;
+	    for(var i = 0; i < versions.length; i++) {  
+	        try {  
+	            xhr = new ActiveXObject(versions[i]);  
+	            break;  
+	        } catch (e) {
+	        }  
+	    }
+	    return xhr;
+	};
+	
+	ajax.send = function(url, callback, method, data, sync) {
+	    var x = ajax.x();
+	    x.open(method, url, sync);
+	    x.onreadystatechange = function() {
+	        if (x.readyState == 4) {
+	            callback(x.responseText)
+	        }
+	    };
+	    if (method == 'POST') {
+	        x.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	    }
+	    x.send(data)
+	};
+	
+	ajax.get = function(url, data, callback, sync) {
+	    var query = [];
+	    for (var key in data) {
+	        query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+	    }
+	    ajax.send(url + '?' + query.join('&'), callback, 'GET', null, sync)
+	};
+	
+	ajax.post = function(url, data, callback, sync) {
+	    var query = [];
+	    for (var key in data) {
+	        query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+	    }
+	    ajax.send(url, callback, 'POST', query.join('&'), sync)
+	};
+	
 	//Detect Support for html5 Video Object
 	var supportsVideoElement = !!document.createElement('video').canPlayType;
 	
@@ -101,7 +156,7 @@
 		clickthrough_url: '',
 		completion_url: '',
 		autoplay: false,
-		controls: false,
+		controls: true,
 		muted: false
 		
 	}; 
@@ -192,6 +247,26 @@
 		
 	
 	}
+	
+	var getUrl = function (url, method, data) {
+		
+		method = typeof method !== 'undefined' ? method : 'GET';
+		data = typeof data !== 'undefined' ? data : {};
+		jQuery.ajax({
+			url : url,
+			method : method,
+			data: data,
+			success: function(data){
+				
+				return data;
+				
+			}
+			
+		});
+		
+	}
+	
+	
 	
 	//Start to contruct our page containers and player	
 	var pageContainer = document.createElement('div');
@@ -396,6 +471,21 @@
 	
 	});	
 	
+	
+	function completeEvent() {
+		
+		console.log('vid complete');
+		completeUrl = video_event_complete;
+		ajax.get(completeUrl, {foo: 'bar'}, function(data) {
+			
+			console.log(data);
+			
+		});		
+		
+	}
+	
+	//Attach an event listener to the video player if a complete event has been set in the embed
+	if(video_event_complete){ videoPlayer.addEventListener('ended', completeEvent)	}
 	
 	videoPlayer.addEventListener('play', function() {
 		

@@ -1,0 +1,6 @@
+var foo = {
+	"data" : {		
+		"dinner" : 'eggs and rice'
+	}
+	
+}
