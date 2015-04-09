@@ -1,4 +1,4 @@
-Who (function(window, document){
+(function(window, document){
 	//Being In-Page-Video Ad
 	/*EMBED CODE
 		<script
@@ -400,7 +400,7 @@ Who (function(window, document){
 	var videoPlayer = document.createElement('video');
 
 	videoPlayer.setAttribute('poster','http://www.codeallstars.com/in-page-video/img/got-poster.png');
-    videoPlayer.setAttribute('style','object-fit: fill');
+        videoPlayer.setAttribute('style','object-fit: fill');
 	//Check if player has been set to detect mouse over for audio toggle
 	if ( scriptTag.hasAttribute('data-hover-sound') ) {
 
@@ -743,6 +743,25 @@ Who (function(window, document){
 		pageContainer.appendChild(fireTrack);
 	}
 
+
+	function addTracking() {
+		/*
+		var trackImg = document.createElement('img');
+		trackImg.id= 'trackImg';
+		trackImg.src = 'http://ads.intergi.com/pcsale/3.0/5205/0/0/0/BeaconId=43816;userid=_ADUSERID_';
+		trackImg.width = 1;
+		trackImg.height = 1;
+		pageContainer.appendChild(trackImg);
+		*/
+
+		var trackImgTwo = document.createElement('img');
+		trackImgTwo.id = 'trackImgTwo';
+		trackImgTwo.src = 'http://bs.serving-sys.com/BurstingPipe/adServer.bs?cn=tis&c=25&pli=11973929&PluID=0&pos=9218&ord=_ADTIME_ ';
+		trackImgTwo.width = 1;
+		trackImgTwo.height = 1;
+		pageContainer.appendChild(trackImgTwo);
+
+	}
 
 	function playVideo () {
 
